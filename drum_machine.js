@@ -1,44 +1,75 @@
-import React from 'react'
+import React, {Component} from 'react'
 
-const drumPadData = [{id: 'Q', color: 'red', clip: 'https://sampleswap.org/samples-ghost/DRUMS%20and%20SINGLE%20HITS/tabla/66[kb]dha-noslide.aif.mp3'},
-{id: 'W', color: 'orange', clip: ''},
-{id: 'E', color: 'yellow', clip: ''},
-{id: 'A', color: 'blue', clip: ''},
-{id: 'S', color: 'green', clip: ''},
-{id: 'D', color: 'indigo', clip: ''},
-{id: 'Z', color: 'violet', clip: ''},
-{id: 'X', color: 'red', clip: ''},
-{id: 'C', color: 'red', clip: ''}]
+const drumPadData = [{id: 'Q', color: 'rgb(148, 0, 211)', clip: 'https://sampleswap.org/samples-ghost/%20MAY%202014%20LATEST%20ADDITIONS/DRUMS%20(FULL%20KITS)/Hard%20Tabla/229[kb]hardtabla-Closed-Open-Ge.wav.mp3'},
+{id: 'W', color: 'rgb(75, 0, 130)', clip: 'https://sampleswap.org/samples-ghost/%20MAY%202014%20LATEST%20ADDITIONS/DRUMS%20(FULL%20KITS)/Hard%20Tabla/306[kb]hardtabla-Loud-Ge.wav.mp3'},
+{id: 'E', color: 'rgb(0, 0, 255)', clip: 'https://sampleswap.org/samples-ghost/%20MAY%202014%20LATEST%20ADDITIONS/DRUMS%20(FULL%20KITS)/Hard%20Tabla/310[kb]hardtabla-Open-Ge.wav.mp3'},
+{id: 'A', color: 'rgb(0, 0, 125, 125)', clip: 'https://sampleswap.org/samples-ghost/%20MAY%202014%20LATEST%20ADDITIONS/DRUMS%20(FULL%20KITS)/Hard%20Tabla/128[kb]hardtabla-Open-Na.wav.mp3'},
+{id: 'S', color: 'rgb(0, 255, 0)', clip: 'https://sampleswap.org/samples-ghost/%20MAY%202014%20LATEST%20ADDITIONS/DRUMS%20(FULL%20KITS)/Hard%20Tabla/185[kb]hardtabla-Pressed-Ge.wav.mp3'},
+{id: 'D', color: 'rgb(255, 255, 0)', clip: 'https://sampleswap.org/samples-ghost/%20MAY%202014%20LATEST%20ADDITIONS/DRUMS%20(FULL%20KITS)/Hard%20Tabla/50[kb]hardtabla-Sliding-Ge.wav.mp3'},
+{id: 'Z', color: 'rgb(255, 127, 0)', clip: 'https://sampleswap.org/samples-ghost/%20MAY%202014%20LATEST%20ADDITIONS/DRUMS%20(FULL%20KITS)/Hard%20Tabla/95[kb]hardtabla-Softer-Sur.wav.mp3'},
+{id: 'X', color: 'rgb(255, 50 , 10)', clip: 'https://sampleswap.org/samples-ghost/%20MAY%202014%20LATEST%20ADDITIONS/DRUMS%20(FULL%20KITS)/Hard%20Tabla/123[kb]hardtabla-Sur.wav.mp3'},
+{id: 'C', color: 'rgb(255, 0 , 0)', clip: 'https://sampleswap.org/samples-ghost/%20MAY%202014%20LATEST%20ADDITIONS/DRUMS%20(FULL%20KITS)/Hard%20Tabla/28[kb]hardtabla-Te.wav.mp3'}]
 
-const Display = ({})=>(
-    <div id='display'></div>
+const Display = ({selectedDrum})=>(
+    <div id='display'
+     style={{height: '60px',
+        fontSize: '40px'}}>
+     {selectedDrum? selectedDrum: ''}
+     </div>
 );
 
-const DrumPad = ({id, color, clip})=>(
-    <div key = {id}
+const DrumPad = ({id, color, clip, drumClick})=>(
+    <div
+        id={clip}
         className = 'drum-pad'
-        style={{backgroundColor: color}}>
+        style={{backgroundColor: color, 
+            display: 'inline-block', 
+            borderRadius: '100px',
+            lineHeight: '100px',
+            width: '100px', 
+            height: '100px',
+            textShadow: '1px 1px white'}}
+        onClick={drumClick.bind(null, id)}>
         {id}
-        onClick={()=>{}}
         <audio id = {id}
         className='clip'
         src={clip}/>
     </div>
 );
 
-//document.getElementById('123').play()
-
-class DrumMachine extends React.Component {
+class DrumMachine extends Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {selectedDrum: null};
+
+        this.drumClick = this.drumClick.bind(this);
+    }
+
+    drumClick(drum) {
+        this.setState({selectedDrum: drum});
+        let currentDrum = document.getElementById(drum);
+        currentDrum.currentTime=0;
+        currentDrum.play();
+    }
+
+    componentWillMount() {
+        document.body.addEventListener('keydown', function(e) {
+            if (!e.key) {
+                return;
+            }
+            if (['Q','W','E','A','S','D','Z','X','C'].includes(e.key.toUpperCase())) {
+                this.drumClick(e.key.toUpperCase());
+            }
+        }.bind(this))
     }
 
     render() {
-        return 
-        (<div>
-            <Display />
-            {drumPadData.map(el=><DrumPad {...el} />)}
+        return (
+        <div>
+            <Display selectedDrum={this.state.selectedDrum}/>
+            {drumPadData.map(el=><DrumPad {...el} 
+                key = {el.id}
+                drumClick={this.drumClick}/>)}
         </div>);
     }
 }
